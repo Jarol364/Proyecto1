@@ -1,128 +1,84 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace caso1Progra2
+namespace caso2Programacion2
 {
     internal class Program
     {
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
-            // Inicio de la lista de empleados 
-            var empleados = new List<Empleado>();
-            string respuesta;
+            int[] entradasPorLocalidad = new int[3];
+            int[] dineroPorLocalidad = new int[3];
+            string[] nombresLocalidades = { "Sol Norte/Sur", "Sombra Este/Oeste", "Preferencial" };
+            int[] preciosPorLocalidad = { 10500, 20500, 25500 };
 
-            do // Bucle para solicitar datos de empleados hasta que el usuario decida salir
+            while (true)
             {
-                var empleado = SolicitarDatosEmpleado();
-                empleados.Add(empleado);
+                Console.WriteLine("Ingrese el número de factura, o 'SALIR' para terminar:");
+                string input = Console.ReadLine();
+                if (input.ToUpper() == "SALIR")
+                {
+                    Console.WriteLine("Acá tienes tu orden:");
+                    break;
+                }
 
-                // Preguntar al usuario si desea ingresar otro empleado
-                Console.Write("¿Desea ingresar otro empleado? (s/n): ");
-                respuesta = Console.ReadLine();
+                Console.WriteLine("Ingrese la cédula del comprador:");
+                string cedula = Console.ReadLine();
+                Console.WriteLine("Ingrese el nombre del comprador:");
+                string nombreComprador = Console.ReadLine();
 
-            } while (respuesta.ToLower() == "s");
+                Console.WriteLine("Ingrese la localidad (1- Sol Norte/Sur, 2- Sombra Este/Oeste, 3- Preferencial):");
+                int localidad;
+                if (!int.TryParse(Console.ReadLine(), out localidad) || localidad < 1 || localidad > 3)
+                {
+                    Console.WriteLine("Localidad inválida. Inténtelo de nuevo.");
+                    continue;
+                }
+                localidad -= 1;
 
-            MostrarDetallesEmpleados(empleados);
+                Console.WriteLine("Ingrese la cantidad de entradas (máximo 4):");
+                int cantidadEntradas;
+                if (!int.TryParse(Console.ReadLine(), out cantidadEntradas) || cantidadEntradas < 1 || cantidadEntradas > 4)
+                {
+                    Console.WriteLine("Cantidad de entradas inválida. Debe ser entre 1 y 4. Inténtelo de nuevo.");
+                    continue;
+                }
+                // Calcular el subtotal y el total a pagar
 
-            Console.WriteLine("\nSi esta de acuerdo con los datos estos se guardaran automaticamente");
-            Console.ReadLine();
-        }
+                int subtotal = cantidadEntradas * preciosPorLocalidad[localidad];
+                int cargosPorServicio = cantidadEntradas * 1000;
+                int totalAPagar = subtotal + cargosPorServicio;
 
-        static Empleado SolicitarDatosEmpleado()
-        {
-            Console.Write("Ingrese el número de cédula del empleado: ");
-            string cedula = Console.ReadLine();
+                Console.WriteLine($"El costo de cada entrada para la localidad {nombresLocalidades[localidad]} es {preciosPorLocalidad[localidad]} colones.");
+                Console.WriteLine($"El monto total a pagar es {totalAPagar} colones. ¿Está de acuerdo con el monto? (si/no)");
+                string confirmacion = Console.ReadLine().ToLower();
 
-            Console.Write("Ingrese el nombre del empleado: ");
-            string nombre = Console.ReadLine();
+                if (confirmacion != "si")
+                {
+                    Console.WriteLine("Compra cancelada. Volviendo al inicio.");
+                    continue;
+                }
 
-            Console.Write("Ingrese el tipo de empleado (1-Operario, 2-Técnico, 3-Profesional): ");
-            int tipo = Convert.ToInt32(Console.ReadLine());
+                entradasPorLocalidad[localidad] += cantidadEntradas;
+                dineroPorLocalidad[localidad] += subtotal;
 
-            Console.Write("Ingrese la cantidad de horas laboradas: ");
-            int horas = Convert.ToInt32(Console.ReadLine());
+                // Imprimir el ticket en pantalla
+                Console.WriteLine("\n=== TICKET DE COMPRA ===");
+                Console.WriteLine($"Cédula: {cedula}");
+                Console.WriteLine($"Nombre: {nombreComprador}");
+                Console.WriteLine($"Localidad: {nombresLocalidades[localidad]}");
+                Console.WriteLine($"Cantidad de Entradas: {cantidadEntradas}");
+                Console.WriteLine($"Subtotal: {subtotal} colones");
+                Console.WriteLine($"Cargos por Servicio: {cargosPorServicio} colones");
+                Console.WriteLine($"Total a Pagar: {totalAPagar} colones");
+            }
 
-            Console.Write("Ingrese el precio por hora: ");
-            decimal precioPorHora = Convert.ToDecimal(Console.ReadLine());
-
-            // Crear y devolver un nuevo objeto Empleado con los datos ingersados
-            return new Empleado(cedula, nombre, tipo, horas, precioPorHora);
-        }
-
-        static void MostrarDetallesEmpleados(List<Empleado> empleados)
-        {
-            Console.WriteLine("\nDetalles de los empleados:");
-            foreach (Empleado empleado in empleados)
+            // Mostrar estadísticas de las conpras
+            Console.WriteLine("\n=== ESTADÍSTICAS DE VENTAS ===");
+            for (int i = 0; i < 3; i++)
             {
-                Console.WriteLine($"Cédula: {empleado.Cedula}");
-                Console.WriteLine($"Nombre Empleado: {empleado.Nombre}");
-                Console.WriteLine($"Tipo Empleado: {ObtenerTipoEmpleado(empleado.Tipo)}");
-                Console.WriteLine($"Salario por Hora: {empleado.PrecioPorHora}");
-                Console.WriteLine($"Cantidad de Horas: {empleado.Horas}");
-                Console.WriteLine($"Salario Ordinario: {empleado.CalcularSalarioOrdinario()}");
-                Console.WriteLine($"Aumento: {empleado.CalcularAumento()}");
-                Console.WriteLine($"Porcentaje de Aumento: {empleado.ObtenerPorcentajeAumento() * 100}%");
-                Console.WriteLine($"Salario Bruto: {empleado.CalcularSalarioBruto()}");
-                Console.WriteLine($"Deducción CCSS: {empleado.CalcularDeducciones()}");
-                Console.WriteLine($"Salario Neto: {empleado.CalcularSalarioNeto()}");
+                Console.WriteLine($"Cantidad Entradas Localidad {nombresLocalidades[i]}: {entradasPorLocalidad[i]}");
+                Console.WriteLine($"Acumulado Dinero Localidad {nombresLocalidades[i]}: {dineroPorLocalidad[i]} colones");
             }
         }
-
-        //metodo auxiliar si el tipo de empleado es 1,
-        //el método devolverá "Operario"; si es 2, devolverá "Técnico"; si es 3, devolverá "Profesional";
-        // y si el valor no coincide con ninguno de estos, devolverá "Desconocido"
-        static string ObtenerTipoEmpleado(int tipo)
-        {
-            return tipo switch
-            {
-                1 => "Operario",
-                2 => "Técnico",
-                3 => "Profesional",
-                _ => "Desconocido",
-            };
-        }
-    }
-
-    class Empleado
-    {
-        public string Cedula { get; set; }
-        public string Nombre { get; set; }
-        public int Tipo { get; set; }
-        public int Horas { get; set; }
-        public decimal PrecioPorHora { get; set; }
-
-        public Empleado(string cedula, string nombre, int tipo, int horas, decimal precioPorHora)
-        {
-            Cedula = cedula;
-            Nombre = nombre;
-            Tipo = tipo;
-            Horas = horas;
-            PrecioPorHora = precioPorHora;
-        }
-
-        public decimal CalcularSalarioOrdinario() => Horas * PrecioPorHora;
-
-        public decimal CalcularAumento() => CalcularSalarioOrdinario() * ObtenerPorcentajeAumento();
-
-        //Obtiene el porcentaje de aumento correspondiente al tipo de empleado.
-        public decimal ObtenerPorcentajeAumento()
-        {
-            return Tipo switch
-            {
-                1 => 0.15m,
-                2 => 0.10m,
-                3 => 0.05m,
-                _ => 0m,
-            };
-        }
-
-        public decimal CalcularSalarioBruto() => CalcularSalarioOrdinario() + CalcularAumento();
-
-        public decimal CalcularDeducciones() => CalcularSalarioBruto() * 0.0917m;
-
-        public decimal CalcularSalarioNeto() => CalcularSalarioBruto() - CalcularDeducciones();
     }
 }
